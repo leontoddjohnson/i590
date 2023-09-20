@@ -1,0 +1,57 @@
+---
+title: "Visualizing Data"
+output: html_document
+---
+
+```{r include = FALSE}
+library(tidyverse)
+library(babynames)
+theme_set(theme_classic())
+```
+
+# Work with Data
+
+In this section, we learn about using pipes, which take in a (tibble) data frame, and return another one:
+
+``` r
+my_data %>%
+    filter(col1 == "Value") %>%
+    arrange(col2) %>%
+    select(col1, col2, col3) ... etc.
+```
+
+## Working with Tibbles
+
+On its own, R is not very suitable for large data frames, so a tibble is a clean way to preview and manipulate them. Many in-package data frames are already stored as tibbles, but you can manually transform data frames into tibbles with `as_tibble()`.
+
+## Isolating Data with dplyr
+
+dyplr provides some nice helper functions for use with tibbles. `select` has some useful utility functions which make selecting columns quite easy, and `filter` is useful for partitioning data. All of these functions can be chained together. `arrange` is used to sort your data based on some conditions, and all of these functions take in a data frame and return a data frame.
+Since they all take in and return data frames, you can use the pipe operator `%>%` to chain functions together.
+
+-   Note, it is a good idea to take a look at the logical and mathematical operators in R before using `filter`. You can find this (and many other operations) [here](https://github.com/rstudio/cheatsheets/raw/main/data-transformation.pdf).
+-   It's helpful to read `%>%` as "then" when looking through your code.
+-   Cool thing: `ggplot()` takes a data frame as the (first) argument! So, you can just add it to the end of a chain of `%>%` pipes, then use/switch to `+` accordingly (e.g., to add a geom, formatting, etc.).
+
+## Derive Information with dplyr
+
+For more on dplyr, check out the [data transformation cheatsheet](https://github.com/rstudio/cheatsheets/raw/main/data-transformation.pdf).
+
+-   `summarise` will aggregate data, and return a "summary" statistic for a vector. This is another function which can be added to a pipe.
+-   With `groupby`, without running a summarize function, this just creates a metadata object alongside the data. Once `summarise` is used on a grouped data frame, the data frame will have "groups", based on all but the last variable provided in `group_by`.
+-   `mutate` is just a way to build another column of data
+
+## Exercise
+
+Code for/from the last exercise in this section:
+
+```{r}
+number_ones = c("John", "Robert", "James", "Michael", "David", 
+                "Jacob", "Noah", "Liam")
+
+babynames %>%
+    filter(name %in% number_ones & sex == "M") %>%
+    ggplot() +
+    geom_line(mapping=aes(x=year, y=prop, colour=name)) +
+    scale_color_brewer(palette = "Set1")
+```

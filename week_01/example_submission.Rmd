@@ -1,0 +1,63 @@
+---
+title: "Example Submission"
+output: html_document
+---
+
+# Example Submission
+
+Hello, my name is Student Person, and I have a few things to say about the `Titanic` data set.
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+library(ggrepel)
+```
+
+First, I'll take a look at the data:
+
+```{r}
+titanic <- as_tibble(Titanic)
+titanic
+```
+
+Wow, how cool, there are 32 rows of information about the survivors of the passengers on the Titanic. *(I wonder how accurate this data actually is ... I have a feeling the accuracy degrades as the cost of the ticket goes down.)*
+
+```{r}
+titanic |>
+  ggplot(mapping = aes(x = Class, y = n)) +
+  geom_boxplot(
+    mapping = aes(color = Survived)) +
+  geom_text_repel(
+    data = filter(titanic, n >= 200),
+    mapping = aes(label = Sex)) +
+  theme_minimal() +
+  labs(title = "Number of Titanic Passengers by Class",
+       x = "Passenger Class",
+       y = "Number of Passengers") +
+  scale_color_brewer(palette = "Set1")
+```
+
+It looks like the two most common type of casualty (by far) on the Titanic (according to this data) were Males (and Adults), in the 3rd and "Crew" classes. Let's take a look at just the passenger types with less than 200 included.
+
+```{r}
+titanic |>
+  filter(n < 200) |>
+  ggplot(mapping = aes(x = Class, y = n)) +
+  geom_boxplot(
+    mapping = aes(color = Survived)) +
+  theme_minimal() +
+  labs(title = "Number of Titanic Passengers by Class",
+       subtitle = "This plot *excludes* Adult Male 3rd Class and Crew",
+       x = "Passenger Class",
+       y = "Number of Passengers") +
+  scale_color_brewer(palette = "Set1")
+```
+
+It looks like all of these classes tend to have more survivors than casualties. But, it would involve more investigation to be sure exactly what this means. For example, we might ask questions like:
+
+-   Is the "more people survived" statement true across all age groups and sexes?
+-   How does this comparison look proportionally?
+
+We'll save those investigations for a different day.

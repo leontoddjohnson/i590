@@ -1,0 +1,47 @@
+---
+title: "Visualizing Data"
+output: html_document
+---
+
+```{r include = FALSE}
+library(tidyverse)
+theme_set(theme_classic())
+```
+
+# The Basics
+
+## Visualization Basics
+
+When using `ggplot`, every code block will have the same sort of format:
+
+``` r
+ggplot(data=<data>) +  # data bindings
+    geom_<plottype>(mapping=aes(...), ...) +  # layer of visual elements
+    geom_<plottype>(mapping=aes(...), ...) +  # subsequent layers ... (optional)  
+    <formattings>  # formatting
+```
+
+I think it makes sense to break this out into three sections (my wording is slightly different from the primer, inspired by d3's notation):
+
+**Data Bindings**: This line of code doesn't really plot anything. We should think of this line of code as the framework for the *connection* between data and visual elements. In other words, this creates the basis for the coordinate system.
+
+**Layers**: R creates *layers* of visual elements to the coordinate plane. After having determined the data bindings, we map each datum to a visual element (e.g., a row of data to a filled in circle). The `mapping` argument is always paired with the `aes` (aesthetic) function to link column names or other vectors with the same length as the data (e.g., logical outcomes).
+
+-   An **aesthetic** is a property for a visual element bound to a data point. This could be the location of the visual element (e.g., its x-y coordinates), or it could be `color`, `size`, `shape`, etc. Aesthetics are *mapped* to visual elements. (These may differ between "geoms".)
+-   *Outside* of the `mapping` argument, you can globally define a single value to each visual element (e.g., using `color`, as its own argument, outside of `aes`.)
+
+**Formatting**: This block contains any formatting we want to apply to the plot.
+For example, scale, axis labels, etc.
+
+All of these together form the "**g**rammar of **g**raphics" (**gg**plot): Data Binding, Geom (Visual Elements), and Mappings.
+
+## Programming Basics
+
+Here, we just have a few helpful notes.
+
+-   For any function `func` in R, you can use `?func` to get information on how it should be used (e.g., what each argument means, etc.)
+-   `args(func)` is another way to learn about what arguments are required (or not) for a given function `func`.
+-   If you accidentally overwrite a built-in variable (i.e., one that comes with R), you can use `rm(var)` to restore the original value.
+-   All values in a vector must be the same datatype (double, character, integer, logical, complex, or raw).
+-   In R, **think of scalars as vectors with length 1.** Also, note that data frames are a special kind of list!
+-   Lastly, but importantly, [R does not have an official style guide](https://stackoverflow.com/a/5129258). However, the tidyverse (which is the primary tool for data science in R) *does*. I recommend that **whenever you code in R, use the [tidyverse style guide](https://style.tidyverse.org/)** (just as you would use PEP-8 for coding in Python, which is outside the scope of this class). It doesn't need to be perfect, but do your best to refer to it when you're not sure how something should be written.

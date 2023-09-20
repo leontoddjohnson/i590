@@ -1,0 +1,94 @@
+---
+title: "Iterate"
+output: html_document
+---
+
+```{r include = FALSE}
+library(tidyverse)  # purrr is included in this import
+
+theme_set(theme_classic())
+```
+
+# Introduction to Iteration
+
+A quick review of vectors:
+
+- In R, a collection of data is a vector.
+  - Non-recursive Vectors - `c(...)` : These contain data of a *single* datatype. Most functions in R are vectorized to work with vectors. (You can think of these as "simple vectors" or "`c`-vectors".)
+  - Recursive Vectors - `list(...)` : These can contain data of *multiple* datatypes (they're used a lot to build R packages). **Almost no function in R is vectorized to work with lists.**
+- The `purrr` package contains utility functions which we can use for both recursive and non-recursive vectors.
+
+# Map
+
+- It seems to me that the simple `map` is only useful when used in tandem with `mutate` in dataframes. Otherwise, `map_*` functions may be the way to go in most cases, as they return simple vectors (or dataframe columns/rows) which are easier to use.
+- I discourage doing anything in R that throws a "future deprecation" warning. E.g., when you use `as_tibble` on a simple vector. Instead, here, you might want to convert it to a dataframe first with `as_tibble(data.frame(vec))`.
+- **Vectors in R default to columns.** They are only displayed as row vectors to save screen space. This makes sense when you think of the attributes of a column of data.
+
+# Map Shortcuts
+
+- `pluck` seems like a great alternative to the `mylist[[i]]` notation, which seems clunky to me.
+- Inlace expressions can be run with all the `map_` functions. Set `.x` as the variable, and start the expression with `~`. For example, `map(mylist, ~ .x^2 + 4 * .x)`. 
+- `enframe` makes named vectors a bit easier to read (try updating the `name` and `value` parameters) with that function, and `top_n` returns the rows of some dataframe with the highest `wt = ` values.
+
+## Best Practice
+
+With map, and running operations on lists or vectors, it's a great idea to start small and work your way out! As stated in the tutorial:
+
+1. *Pluck a single element from your vector*
+2. *Write code that works correctly for that element*
+3. *Transform the code into an expression to use with `map()`*
+
+# Multiple Vectors
+
+- `map2` acts exactly as you'd expect given the way `map` functions.
+- `pmap` is slightly different in that the vectors need to be supplied within a list. 
+  - Whereas the first argument(s) for `map` and `map2` are vectors to iterate through, the first argument for `pmap` is a list of vectors to iterate through. Optionally, you can name each vector based on the arguments for your mapping function. This can also be applied to dataframes, if your function takes in column names as arguments.
+  - Secondly, if you use an expression (with `~`) and you need to reference different vectors, you'll use `..n` to reference the `n`th vector instead of `.x` or `.y`. This makes sense, because after 3 vectors, you'd run out of letters in the alphabet :) 
+- All three of these have a `_*` version for each datatype, e.g., `map_dbl`, or `pmap_int`, etc.
+- `invoke_map` is pretty wild. This isn't a function we'd use often anyway, but it seems that when it is used, it's best to keep things as simple as possible (i.e., not worrying about variously named arguments which change from function to function).
+- There are plenty more `*map` functions available on [purrr](http://purrr.tidyverse.org/).
+
+# List Columns
+
+R does this cool thing where you can store anything in a data frame!
+
+- Recall that dataframe columns are vectors. But, a list is a kind of vector, so you can easily assign a list to be column within a dataframe (or a tibble). The list can contain whatever you like, of course.
+- `nest` is a handy little function which (when used with `group_by`) creates a separate *nested* dataframe within a grouped dataframe.
+  - `unnest` will undo this operation, so long as you supply it with the name of the newly nested data.
+
+> **Note, from the tutorial:** By default, `%>%` pipes the expression on its left hand side into the first argument of the function on its right hand side. You can use a `.` to pipe the expression into an argument other than the first. For example:
+> `iris %>% lm(Sepal.Length ~ Petal.Length, data = .)`
+
+## Case Study
+
+### Models
+
+This particular problem was a bit tricky. The solution here should be one of two things:
+
+```R
+nested_gapminder %>%
+  mutate(models = map(data, ~ lm(.x$lifeExp ~ .x$year)))
+
+# OR, equivalently
+nested_gapminder %>%
+  mutate(models = map(data, ~ lm(pluck(.x, "lifeExp") ~ pluck(.x, "year"))))
+```
+
+Notice that mutate is creating a new column, `models`. To get each value of this column, we need a function that takes in a single row from the original dataframe. The `data` here as the first argument passed to `map` is indicating that that "data" to be used in the `map` function comes from the `data` column of the original dataframe. With each row from the `data` column, denoted as `.x` in the expression, pluck the appropriate columns to run the model.
+
+### Coefficients
+
+Similarly, under the "Coefficients" exercise, if you want to *see* the contents of the "list" values under the `year` column, you'll want to use `as_vector` along with the suggestion given. There are a few ways to do this, but here are two:
+
+```r
+gap_models %>%
+  mutate(coefficients = map(models, coef)) %>%
+  mutate(year = as_vector(map(coefficients, ~ pluck(.x, "year"))))
+  
+# OR, as recommended
+gap_models %>%
+  mutate(year = as_vector(map(models, ~ coef(.x) %>% pluck("year"))))
+```
+
+Of course, you don't need to use `as_vector` to obtain the result of the mapping, but when you do use it, the vector values are shown in the tibble.
+

@@ -1,0 +1,229 @@
+---
+title: "Visualizing Data"
+output: html_document
+---
+
+```{r include = FALSE}
+library(tidyverse)
+library(ggrepel)
+
+# theme_set(theme_classic())
+theme_set(theme_minimal())
+```
+
+# Visualize Data
+
+Some vocabulary:
+
+| Term            | Definition                                                            |
+|-------------------|-----------------------------------------------------|
+| **variable**    | a quantity, quality, or property that you can measure                 |
+| **value**       | the state of a variable when it was measured                          |
+| **observation** | a set of measurements under the same conditions *for a single entity* |
+
+> **Tabular data** is a table of values, each associated with a variable and an observation. Tabular data is **tidy** if each value is placed in its own cell, each variable in its own column, and each observation in its own row.
+
+There is a distinction between data-as-it-comes, and **tidy** data. Multiple rows of data could refer to the same observation, and multiple columns could actually just be components of a single variable (of interest). We need to tidy data before analyzing it (e.g., before placing it in Tableau).
+
+## Exploratory Data Analysis (EDA)
+
+### Caveats
+
+In the primer, Garrett mentions a few things I'd like to amend a bit:
+
+-   The primer states that scientists will "devise a test to confirm [...] hypotheses" In fact, scientists are devising hypotheses, and seeking evidence *against* that hypothesis. This is science, and we should think of doing data science in this way.
+-   It *is* a great idea to ask many questions as you can during EDA, however, I think these questions should be asked in order of what seems most interesting to you. Think of it as a tree of questions that starts with the first interesting thing that comes to you, leads to the next interesting thing from the result of the last question, and so on until you hit a dead end. When you do hit a dead end, go back to the last question, and try something else, and so on. Ish. Throughout EDA, in this way, you'd build multiple "question trees."
+-   On that last co/variation note, it is interesting to think of variation as a phenomenon which introduces uncertainty and covariation as one which reduces uncertainty (by providing more information). I think this is a nice way to button up the two.
+-   There are a few ggplot2 functions I find useful when plotting:
+    -   `theme_set(theme_classic())`: Running this code before plotting a `ggplot` will use the "classic" [theme](https://ggplot2.tidyverse.org/reference/ggtheme.html) from ggplot. This is good for plots where the grid is particularly helpful (e.g., bar charts).
+    -   `theme_set(theme_minimal())`: This is similar to the above, but it's nice for plots where the grid doesn't matter.
+    -   `scale_color_brewer(palette = "Dark2")`: Adding this (with `+`) to a `ggplot` will set the plot's color palette to a colorbrewer color scheme. In my opinion, [Color Brewer](https://colorbrewer2.org/) is one of the best color palette tools out there. You can take a look at the qualitative, continuous, and divergent options in R Studio.
+    -   `scale_fill_brewer(palette = 'Dark2')`: This is the same as the above, but for when you are assigning a `fill` aesthetic (e.g., in bar charts).
+    -   `scale_fill_distiller(palette = "Blues", direction = 1)`: For continuous data, you use Colorbrewer2 color scales, and this will interpolate the in-between gradients. The `direction` determines the direction of color (for all of these scales). 
+    -   `scale_fill_fermenter()`: This is similar to the above, but it instead groups the continuous colors into discrete "color-steps".
+
+## Bar Charts
+
+In R, a bar chart is essentially a histogram for categorical data. *Column* charts (`geom_col`) are like bar charts but with a variable on both the x and y axes.
+
+```{r}
+diamonds %>%
+  count(cut) %>%
+  ggplot() +
+  geom_col(mapping = aes(x = cut, y = n))
+```
+
+this is equivalent ...
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut))
+```
+
+### Aesthetics
+
+When working with aesthetics (as parameters here) on the outline of the bars (i.e., not the fill), you may need to define a color since we set the theme to minimal/classic:
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut), 
+           alpha = 0.5, color = 'black', linetype = 'dashed', size = 1.5)
+```
+
+### Position Adjustments
+
+**Stacked Bar Chart:**
+
+```{r}
+ggplot(data = mpg) +
+  geom_bar(mapping = aes(x = class, fill = fl)) +
+  scale_fill_brewer(palette = 'Dark2')
+```
+
+**Grouped Bar Chart:**
+
+```{r}
+ggplot(data=mpg) +
+  geom_bar(mapping = aes(x = class, fill = fl), 
+           position = "dodge") +
+  scale_fill_brewer(palette = 'Dark2')
+```
+
+(`position="stack"` is default.) Also check out `position="fill"` to fill the y-axis (think percentage, etc.). See the "what is a position adjustment" section of [the associated primer](https://posit.cloud/learn/primers/3.2).
+
+### Facets
+
+There are three ways to use the `facet_grid()` function, added (as always with `+`) to the end of a `ggplot` call:
+
+``` r
+facet_grid(var ~ .)  # facet by the `var` variable along the rows
+facet_grid(. ~ var)  # facet by the `var` variable along the columns
+facet_grid(var1 ~ var2)  # facet by `var1` variable along rows and `var2` along columns
+```
+
+Alternatively, you can use `facet_wrap(~ var)` on *one* single variable (e.g., `var` here) to present the single-variable facet plots in a wrapped "paragraph" form.
+
+Add the `scales` parameter to either `facet_` to determine if you want a "free_x" or "free_y" axis scaling. By default, axes share the same scale. In some cases this may be helpful, but most of the time I'd advise against using it at all!
+
+## Histograms
+
+`geom_histogram` performs very similarly to `geom_bar`. The main difference is that we now can set bins with the `binwidth` parameter or `bins`. The aesthetics here work the same with histograms as they would with bar charts. **Exploring binwidths here is a great idea!**
+
+Only use histograms for ***single*** **continuous variables**. Avoid setting an aesthetic for different fill values for these, unless you are faceting. Instead, use `geom_density` or (if needed) `geom_freqpoly` if you want to distinguish between groups.
+
+The `geom_dotplot` is only really useful for very small datasets/sub-datasets. (This includes the use of `binaxis` seen in the next section of the tutorial.)
+
+```{r}
+ggplot(data = diamonds) +
+  geom_density(mapping = aes(x = price, color = cut)) +
+  scale_color_brewer(palette = "OrRd")
+```
+
+## Boxplots and Counts
+
+A few notes:
+
+-   (From the video in the primer) It is important to note that the box plot in R does two things which are not necessarily consistent for all box plots:
+    -   Outliers are defined to be outside of 1.5 $\times$ IQR (where IQR = the Interquartile Range) above or below the IQR.
+    -   Whiskers might not span the full IQR, but rather they reach only as far as data exists *within* the IQR.
+-   `geom_boxplot()` will never ignore outliers completely, and **this is a good thing**. I would never suggest using the set-alpha-to-zero technique shown in the primer. Instead, I would investigate the cluster of outliers, try to figure out what's going on, and maybe assign a categorical explanation to each of them (e.g., you could have an outlier column with designations such as "data typo", "anomalous weather", etc.). Then, filter those out when you plot the box plot.
+-   The scatterplot of *price vs. carat* is actually interesting. Notice how data is grouped, in a way, by the first digit of the carat, where most are dominated by integer carat values.
+-   I notice that some of these plots (box plots, point plots, etc.) have y-axes which do not start at zero. I recommend using `expand_limits(y = 0)` to make that so when it doesn't automatically.
+-   It seems like R is a bit picky about what kinds of data can be placed on x/y axes for various plots. `coord_flip()` is handy.
+
+```{r}
+ggplot(data = mpg) +
+  geom_boxplot(mapping = aes(x = class, y = hwy)) +
+  coord_flip()
+```
+
+-   `geom_count` and the heat map (using `geom_tile`) are most useful when the x and y variables have a sensible ordering.
+
+```{r}
+# here is an implementation which allows for labels
+diamonds %>%
+  count(color, cut) %>%
+  ggplot() +
+  geom_tile(mapping = aes(x = color, y = cut, fill = desc(n))) +
+  geom_text(mapping = aes(x = color, y = cut, label = n),
+              color = 'white')
+
+
+```
+
+## Scatterplots
+
+-   Using `geom_..._repel` is very helpful. Also, note that you can define *global* `mapping` (or `data`) variables in the `ggplot` function, and local ones within geoms.
+
+```{r}
+mpg %>%
+  group_by(class) %>%
+  summarize(mean_cty = mean(cty), mean_hwy = mean(hwy)) %>%
+  ggplot(mapping = aes(x = mean_cty, y = mean_hwy)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  geom_label_repel(mapping = aes(label = class))
+```
+
+- Gotta love a nice scatter plot with marginal rug plots
+
+```{r}
+ggplot(data=faithful, mapping=aes(x=waiting, y=eruptions)) +
+  geom_point() +
+  geom_rug(sides="l")
+```
+
+- A helpful way to make transformations to either axis
+
+```{r}
+ggplot(data = diamonds) +
+  geom_point(mapping = aes(x = carat, y = price)) +
+  coord_trans(x = "log", y = "log")  # use any R function in quotes
+```
+
+- *Note: If the scatterplot takes longer than a 30 seconds to load (and this is on the high end), your dataset is likely too large to be using a scatterplot in the first place. (See Overplotting below.)*
+
+## Line Plots
+
+I *really* like the tutorial's description of line plots, namely that "each value of $x$ is associated with only *one* value of $y$" (but, a $y$ value could be associated with 2 or more $x$ values).
+
+- Using the `group` parameter/aesthetic is useful if there are 7 or more groups (otherwise, I'd suggest just using the color, so you can delineate each line).
+
+### Maps
+
+**We will not be plotting choropleth maps or polygons of any sort in this course.** In practice, geographic data can get quite messy, and R does not handle this sort of thing nearly as well as many other tools (e.g., Python, Tableau, etc.). Since this class is focused specifically on statistics in R, we will not plot any geographic projections (though we may still use geographic data in our analyses). I.e., we can ignore `geom_map` and `geom_polygon`, as well as the datasets in the `maps` package.
+
+## Overplotting
+
+**This one is important.**
+
+- I recommend using `alpha < 0.5` instead of `jitter` wherever possible; simply because jitter distorts our visual perception of the data (even if it is slight).
+  - With larger datasets, I advise *additional* distribution plotting for both $x$ and $y$ variables (e.g., box plots, histograms, etc.).
+  - If one of your axes is not continuous (e.g., a manageable range of integer values, box plots, etc.) then jitter along that axis may be useful (e.g., if $x$ is categorical, set `height = 0`).
+
+### Plotting Large Datasets
+
+In this section, we are talking about datasets which take longer than 30-ish seconds to plot in a scatterplot. Further, **if the dataset takes up 50% of your RAM, only plot samples.** I recommend samples selected based on some criteria (e.g., "last month", "schools with parking lots", etc.).
+
+- One helpful alternative to the scatterplot for large datasets is the grouped boxplot (below). Recall that the boxplot geom in R expects the x-axis to be categorical and the y-axis to be numeric. When both are numeric, R plots a single boxplot horizontally. By using the `group` parameter, we can break the x-axis into groups, and plot a (horizontal) "sub-boxplot" for each group.
+
+```{r}
+ggplot(data = diamonds) +
+  geom_boxplot(mapping = aes(x = carat, y = price, group = cut_width(carat, width = 0.2)))
+```
+
+- Another nice plot is the `geom_bin2d`, which is basically a 2-dimensional histogram. With this one, don't forget that both `bins` and `binwidth` are both 2-dimensional vectors (e.g., `bins = c(20, 30)`) for the x-axis and y-axis, respectively.
+- For a slightly different view (one which doesn't force data into vertical rectangles), `geom_hex` provides a clean view of large datasets. Here, `bins` is a scalar, for the number of bins along both $x$ and $y$.
+- `geom_density2d` can be nice to look at, but it is a bit more difficult to interpret for most people. Essentially, more concentric "blobs" equates to more data (e.g., think topographical maps).
+
+## Customize Plots
+
+- When "zooming" in on plots, `ylim` and `xlim` will only plot data where $x$ or $y$ fall within the desired range. Think of it as only plotting a slice of the *data*. Using `coord_cartesian` or another `coord_` function with the same arguments will show a slice of the *plot*.
+  - Note: boxplots or fitted curves will only apply to the *plotted* data.
+- Using `geom_smooth`, and mapping color to a categorical variable gives a nice summary.
+- `scale`s apply to each aesthetic mapping. You can have `scale_x_...` , `scale_color_...`, etc. This is where you can apply things like color changes, log transformations, etc.
+  - Within the `scale_` function, you can adjust legend (or axes) `label` and `name` parameters.
+  - Think of the "scale" as the function which translates numeric values to visual elements. This can be a location on an axis (e.g., x/y-axes) or a color (e.g., updating the legend or color map).
+- I tend to use the `brewer` color scales a lot. To get a preview of each palette with `RColorBrewer::display.brewer.all()`.
+- All of the theme adjustments (e.g., legend or grid changes, etc.) can be updated in the `theme` formatting (e.g., `+ theme(... =)`), and this should be added last!
+- 

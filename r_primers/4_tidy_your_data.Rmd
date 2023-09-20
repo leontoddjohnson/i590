@@ -1,0 +1,81 @@
+---
+title: "Tidy Your Data"
+output: html_document
+---
+
+```{r include = FALSE}
+library(tidyverse)
+library(babynames)
+
+theme_set(theme_classic())
+```
+
+# Reshape Data
+
+**Recall the definition of "tidy" data:**
+
+| Term            | Definition                                                   |
+| --------------- | ------------------------------------------------------------ |
+| **variable**    | a quantity, quality, or property that you can measure        |
+| **value**       | the state of a variable when it was measured                 |
+| **observation** | a set of measurements under the same conditions *for a single entity* |
+
+> **Tabular data** is a table of values, each associated with a variable and an observation. Tabular data is **tidy** if each variable in its own column, each observation in its own row, and each value is placed in its own cell.
+
+There is a distinction between data-as-it-comes, and **tidy** data. Multiple rows of data could refer to the same observation, multiple columns could actually just be components of a single variable (of interest), or a single column could contain many variables, etc.. We need to tidy data before analyzing it (e.g., before placing it in Tableau).
+
+**Whether data is tidy *depends* on the question you are asking.**
+
+## Gathering Columns
+
+- The `gather` function converts wide data into long data. The `key` parameter defines a column name for the previous column values (using quotations), and `value` defines a column name for the values (also using quotations). The last `k` parameters determine which columns you want to convert (the rest of the data are duplicated as needed).
+  - Note, when identifying columns in the last `k` parameters, listing an integer implies the "number" of the column. Otherwise, use backquotes \` for numeric values, or quotations.
+- `convert = TRUE` is a nice parameter for this function!
+
+## Spreading Columns
+
+- The `spread` function is just the inverse of `gather`. It converts long data into wide data. Remember, though, the purpose of both of these functions should be to *tidy* your data!
+- In the case of `spread`, the `key` and the `value` are column names of the original table (i.e., these are objects in themselves), so you won't use quotes here.
+
+# Separate and Unite Columns
+
+- I don't think I'd use this for dates, but `separate` is a sort of "to-columns" function with `sep` as the delimiter parameter, and `unite` is the inverse.
+- Despite their use on dates in the primer, `separate` and `unite` are best for separating strings that are *not* dates. For dates, we have **[lubridate](https://lubridate.tidyverse.org/)**, a nice tidyverse (!) library for dealing with dates. I recommend using this library whenever dealing with dates or date time data.
+- In the exercise, the recommendation is to completely remove all rows where `n == NA` from the dataset, *after* tidying. This is probably okay, but [notice](https://stackoverflow.com/a/53745490) that in the original dataframe, there are several rows of completely missing "new_" values. To be safe, consider [researching](https://www.who.int/publications/i/item/9789240061729) why those rows (or any subset of them) were included in the first place, and maybe add a categorical "tagging" column which tags rows accordingly.
+
+# Join Datasets
+
+- All of the normal "Mutating Joins" `_join` functions (left, right, inner, full) operate as expected, with column names passed as strings in quotes. You can always add more than one column in the `by` parameter using `c(...)`.
+  - When the names between the two datasets do not match, you'll use named vectors for `by`. In this way, the *name* represents the left column and the *element* represents the right column. The names (i.e., the left columns) are the ones kept. E.g., `inner_join(... by = c("left_col1" = "right_col1", "left_col2" = "right_col2"))`.
+
+- "Filtering Joins" `semi_join` and `anti_join` are pretty cool. You can use the former for checking matches, and the latter for finding which rows *didn't* match (e.g., typos, etc.).
+  - `semi_join` can also be used for complex filtering ... create a small dataframe with the *kinds* of rows that match a criteria, and join by those columns.
+- `bind_rows` and `bind_cols` act as expected, i.e., they simply concatenate the data by row or by column.
+  - When you use `bind_rows`, I highly recommend the use of the `.id` argument. Define your data frames (say, `data1` and `data2`) within a named *list* (allowing for different datatypes), and call `bind_rows` on that with `.id` naming the subset's column: 
+    `list(df1 = data1, df2 = data2) %>% bind_rows(.id = 'origin')`
+- R also has `union()`, `intersect()`, and `setdiff()` operations. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

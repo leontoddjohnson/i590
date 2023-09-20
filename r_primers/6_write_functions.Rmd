@@ -1,0 +1,54 @@
+---
+title: "Write Functions"
+output: html_document
+---
+
+```{r include = FALSE}
+library(tidyverse)
+
+theme_set(theme_classic())
+```
+
+# Function Basics
+
+The basic theme of this tutorial, and any data science course in general: **the `?` is your friend.**
+
+- I wouldn't say that a function *contains* an environment ... rather, a function is *contextualized by* an environment.
+- R functions do not *require* you to use `return`. By default, any R function will just return whatever is in the last line of the function.
+- When you open the parentheses for a function in R, use **Shift + Tab** to peek at the arguments, and run `?<func>`, e.g., `?sqrt` to find out more about the function.
+
+# How to Write a Function
+
+Converting a pipe into a function is quite useful! You can just replace the first object with `.`, and assign it to an object:
+
+```{r}
+# sum of squares
+ss_pipe <- . %>% 
+  sq() %>% 
+  sum()
+
+ss_pipe(c(1, 1, 1))
+
+```
+
+# Environments and Scoping
+
+- If you accidentally save data to a variable in the active environment (over the parent environment), e.g., overwriting the name of a function, you can always remove that assignment, with `rm()` to restore the original data.
+  - The double colon `::` is also useful if you want to point to a specific object within an environment, e.g., `base::date` pulls the `date` from the original `base` package.
+
+# Advanced/Control Flow
+
+- For any if-else if-else code chunks, I recommend *always* wrapping code segments in `{ }` brackets, no matter how simple. If you have a chain of if/else if statements, you probably want to be using a different framework (e.g., case)
+- Don't forget to surround your `if` and `else if` conditions in parentheses!
+- Using `stop` is a great way to help with edge cases. I.e., you might want to make sure that some data coming into a function acts a particular way. If it doesn't, `stop`, so you can diagnose and debug.
+  - `stopifnot` is even better when you need to test for several different logical tests:
+    `stopifnot(!is.null(x), is.numeric(x), length(x) == 1)`, etc.
+- The difference between `|` / `&` and `||` / `&&` is *crucial*. Remember that the former will check each element in vectors (of the same length), and will return an error if things don't match up. The latter only checks the first value of a vector. When using the double characters:
+  - If the first value of the passed vector meets a condition, then it will evaluate to `TRUE`. In this way, the first value sort of stands in for the check. "It is a vector, so technically, no, *but* the first value matches."
+  - Otherwise, it will not match. "It is a vector, so it is not that single value."
+  - **The single characters will check all conditions**
+- `ifelse` seems more appropriate than `if_else` for *most* situations, but the latter is good if you're using specialized NA values (e.g., `NA_integer_`), or if all datatypes are the same.
+
+# Loops in R
+
+- My philosophy with loops is that there is absolutely no reason for an infinite loop. There should always be a stopping condition, no matter what. This means that you can probably avoid the `repeat` loop, and instead use `for` or (only if needed) `while`.
