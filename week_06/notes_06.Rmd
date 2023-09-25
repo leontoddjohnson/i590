@@ -367,7 +367,7 @@ ggplot() +
   theme_minimal()
 ```
 
-Who knows. Maybe the sample mean we're collecting is actually overestimating the true mean. We cannot know for sure. But, we can create an interval which we expect to contain the true mean with some defined level of confidence ...
+Who knows. Maybe the sample mean we're collecting is actually overestimating the true mean. We cannot know for sure. But, we can create an interval which we *expect* to contain the true mean with some defined level of confidence. So, **whenever we draw a conclusion from a confidence interval, we assume our sample is representative of the population**.
 
 ### Z-Score
 
