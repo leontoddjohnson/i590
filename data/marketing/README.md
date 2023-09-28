@@ -22,8 +22,8 @@ The `marketing` dataset contains `40` rows (each row reports on a single day fro
 - `impressions`: number of "views" of the ad. 
   - This is $\geq$ *reach* (the unique number of users who saw the ad that day). So, it is possible that one person contributes multiple impressions in a single day.
 
-- `display`: whether or not a "display" campaign was running for the impression. 
-  - This is just a more interactive ad type, `1` for running, and `0` for not running.
+- `display`: whether or not the advertisement was running.
+  - `1` for running, and `0` for not running.
 
 - `transactions`: number of transactions (e.g., purchases) that day.
 - `revenue`: revenue for the day (in dollars)
