@@ -10,7 +10,7 @@ This marketing dataset simulates a short advertising campaign for a theoretical 
 
 ```R
 url_ <- "https://raw.githubusercontent.com/leontoddjohnson/i590/main/data/marketing/marketing.csv"
-marketing <- read.delim(url_, sep = ",")
+marketing <- read_delim(url_, delim = ",")
 ```
 
 ### Format
