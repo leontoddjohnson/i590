@@ -41,7 +41,7 @@ Before we can draw conclusions about a population, let alone evaluate those conc
 
 One way to gather a different "view" of our data is to compare each value in a column with a single value. That is, a deviation column is a subtraction operation: the difference between a row value and a constant value, illustrating it's *deviation* from the predefined constant value. One common example of this is the difference between a row value and its corresponding mean within a group.
 
-**Before mutating a data frame, save the "raw" version.**
+**Before mutating a data frame, save the "raw" version.** *Note: R makes a copy of an object when you assign it to a different variable name. (E.g., see the Data in the environment of this notebook after running all the cells.)*
 
 ```{r}
 # let's start by saving the original dataset as "raw"
@@ -114,11 +114,13 @@ Another calculation we can make is rank ordering continuous values. So, for each
 gapminder <- 
   gapminder |>
   group_by(year) |>                       # within each year ...
-  mutate(pop_rank = rank(population)) |>  # rank order populations
+  mutate(pop_rank = rank(population),
+         pop_rank_desc = rank(desc(population))) |>  # rank order populations
   ungroup()
 
 gapminder |>
-  arrange(year, pop_rank)
+  arrange(year, pop_rank) |>
+  select(year, population, pop_rank, pop_rank_desc)
 ```
 
 ### Continuous to Categorical
@@ -153,7 +155,8 @@ gapminder |>
   scale_x_log10() +
   scale_colour_brewer(palette = "Dark2") +
   theme_hc() +
-  labs(title = paste("Population 50th percentiles for the year", plot_year))
+  labs(title = paste("Population 50th percentiles for the year", 
+                     plot_year))
 ```
 
 So, we can see that this is doing what we want it to be doing.
@@ -174,7 +177,7 @@ oom_labels <- c(">10K", ">100K", ">1M", ">10M", ">100M", ">1B")
 
 ```{r}
 gapminder <-
-  gapminder |>
+  gapminder |> 
   mutate(pop_oom = cut(population, breaks = oom_breaks, 
                        labels = oom_labels, right = TRUE))
 ```
@@ -322,7 +325,7 @@ $$
 where $s$ is the standard deviation of our sample of data, and $n$ is the number of rows.
 
 ```{r}
-life_exp_se_est <- sd(life_exp_2000s) / length(life_exp_2000s)
+life_exp_se_est <- sd(life_exp_2000s) / sqrt(length(life_exp_2000s))
 life_exp_se_est
 ```
 
