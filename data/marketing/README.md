@@ -4,7 +4,7 @@
 
 ## Description
 
-The marketing dataset contains `8` columns of `40` records, for 40 days that reports on advertising budget spent, clicks, impressions, transactions, whether or not a display campaign was running, as well as revenue, click-through-rate, and conversion rate.
+This marketing dataset simulates a short advertising campaign for a theoretical business. It contains advertising budget spent, clicks, impressions, transactions, whether or not a display campaign was running, as well as revenue, click-through-rate, and conversion rate over a 40 day period.
 
 ### Usage
 
