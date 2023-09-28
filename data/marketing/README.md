@@ -4,7 +4,7 @@
 
 ## Description
 
-This marketing dataset simulates a short advertising campaign for a theoretical business. It contains advertising budget spent, clicks, impressions, transactions, whether or not a display campaign was running, as well as revenue, click-through-rate, and conversion rate over a 40 day period.
+This marketing dataset simulates a short advertising campaign for a theoretical company testing out some advertisement. It contains advertising budget spent, clicks, impressions, transactions, whether or not a display campaign was running, as well as revenue, click-through-rate, and conversion rate over a 40 day period.
 
 ### Usage
 
@@ -15,16 +15,24 @@ marketing <- read.delim(url_, sep = ",")
 
 ### Format
 
-The `marketing` dataset, as a data frame, contains `40` rows and `8` columns. The `8` variables are:
+The `marketing` dataset contains `40` rows (each row reports on a single day from the 40-day campaign) and `8` columns:
 
-- `spend`: daily send of money on PPC (pay-per-click).
-- `clicks`: number of clicks on that ad.
-- `impressions`: amount of impressions per day.
-- `display`: whether or not a display campaign was running for the impression.
-- `transactions`: number of transactions per day.
-- `revenue`: daily revenue.
-- `ctr`: click-through-rate.
-- `con_rate`: conversion rate.
+- `spend`: amount spent on advertising based on pay-per-click.
+- `clicks`: number of clicks on the ad.
+- `impressions`: number of "views" of the ad. 
+  - This is $\geq$ *reach* (the unique number of users who saw the ad that day). So, it is possible that one person contributes multiple impressions in a single day.
+
+- `display`: whether or not a "display" campaign was running for the impression. 
+  - This is just a more interactive ad type, `1` for running, and `0` for not running.
+
+- `transactions`: number of transactions (e.g., purchases) that day.
+- `revenue`: revenue for the day (in dollars)
+- `ctr`: Click Through Rate = clicks / impressions
+  - Here, `ctr = round(clicks / impressions, 4) * 100`
+
+- `con_rate`: Conversion rate = number of desired actions (from the ad) / clicks
+  - I.e., the proportion of all the user-clicks who took the desired action of the advertisement.
+
 
 ### Details
 
