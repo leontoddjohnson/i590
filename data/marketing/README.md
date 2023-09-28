@@ -4,26 +4,27 @@
 
 ## Description
 
-The marketing dataset contains `88` features and `4040` records as 40 days that report how much we spent, how many clicks, impressions and transactions we got, whether or not a display campaign was running, as well as our revenue, click-through-rate and conversion rate. The target feature is *revenue* and the remaining 7 variables are predictors.
+The marketing dataset contains `8` columns of `40` records, for 40 days that reports on advertising budget spent, clicks, impressions, transactions, whether or not a display campaign was running, as well as revenue, click-through-rate, and conversion rate.
 
 ### Usage
 
 ```R
- data( marketing ) 
+url_ <- "https://raw.githubusercontent.com/leontoddjohnson/i590/main/data/marketing/marketing.csv"
+marketing <- read.delim(url_, sep = ",")
 ```
 
 ### Format
 
-The `marketing` dataset, as a data frame, contains `4040` rows and `88` columns (variables/features). The `88` variables are:
+The `marketing` dataset, as a data frame, contains `40` rows and `8` columns. The `8` variables are:
 
-- `spend`: daily send of money on PPC (apy-per-click).
-- `clicks`: number of clicks on for that ad.
+- `spend`: daily send of money on PPC (pay-per-click).
+- `clicks`: number of clicks on that ad.
 - `impressions`: amount of impressions per day.
-- `display`: whether or not a display campaign was running.
+- `display`: whether or not a display campaign was running for the impression.
 - `transactions`: number of transactions per day.
-- `click.rate`: click-through-rate.
-- `conversion.rate`: conversion rate.
 - `revenue`: daily revenue.
+- `ctr`: click-through-rate.
+- `con_rate`: conversion rate.
 
 ### Details
 
