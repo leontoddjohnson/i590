@@ -286,7 +286,7 @@ bootstrap <- function (x, func=mean, n_iter=10^4) {
   # we simulate sampling `n_iter` times
   for (i in 1:n_iter) {
     # pull the sample
-    x_sample <- sample(x, size = length(x), replace = TRUE)
+    x_sample <- sample_n(x, size = length(x), replace = TRUE)
     
     # add on this iteration's value to the collection
     func_values <- c(func_values, func(x_sample))
