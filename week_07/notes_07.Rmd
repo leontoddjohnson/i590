@@ -49,23 +49,17 @@ First, **a hypothesis is a statement about a population parameter**. Again, para
 
 [Fisher's definition of the null hypothesis](https://archive.org/details/in.ernet.dli.2015.502684/page/n32/mode/1up?q=null+hypothesis) is a bit vague, but we can use his writing to inform a more clear definition:
 
-**A null hypothesis is a *neutral* and *quantitative* statement about a population parameter that *may* be disproved.**
+**A null hypothesis is a *neutral* and *quantitative* statement about a population parameter that *can* be disproved.** Namely, it claims there is no relationship between some set of variables.
 
 For example:
 
-+--------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------+
 | Instead of this ...                                                            | Choose this ...                                                                                                        |
-+================================================================================+========================================================================================================================+
+|--------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
 | *"The average temperature in Arizona is 98 degrees."*                          | *"The average temperature in Arizona this year is equal to the average temperature in Arizona last year."*             |
-+--------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------+
 | *"3% of students fail the class each year"*                                    | *"The proportion of failing students for the class is 0."*                                                             |
-+--------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------+
-| *"The BMI for active athletes is better than the BMI for non-athletes."*       | *"The mean difference in BMI between athletes and no-athletes is 0."*                                                  |
-+--------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------+
-| *"House prices increase each year"*                                            | *"The mean house price for year* $t$ *is equal to the mean house price for year* $t-1$*."*                             |
-+--------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------+
+| *"The BMI for active athletes is better than the BMI for non-athletes."*       | *"The difference in the mean BMI between athletes and no-athletes is 0."*                                              |
+| *"House purchases increase each year"*                                         | *"On average, house sales in a neighborhood during year* $t$ *is equal to its house sales in year* $t-1$*."*           |
 | *"There is a strong correlation between brushing your teeth and oral health."* | *"The average number of cavities for toothbrushers is equal to the average number of cavities for non-toothbrushers."* |
-+--------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------+
 
 *Note: **you cannot accept a null hypothesis**.*
 
@@ -79,7 +73,7 @@ marketing <- read_delim(url_, delim = ",")
 ```
 
 1.  Clearly define the *population* from which this data is sampled.
-2.  Devise a null hypotheses based on the documentation which incorporates two columns of data.
+2.  Devise a null hypotheses based on the documentation.
 3.  Using R, calculate the statistic(s) associated null hypothesis from the sample of data.
 
 ```{r}
@@ -93,7 +87,8 @@ print("your code here")
 Returning to the `marketing` data, suppose we devise the following null hypothesis:
 
 $$
-H_0: \text{Average daily revenue remains equal for both variations of advertisement.}
+H_0: \text{Average daily revenue remains equal for both variations of advertisement.} \\
+H_0 : \text{rev}_0 = \text{rev}_a \to |\text{rev}_a - \text{rev}_0| = 0
 $$
 
 In this case, we have two different sampled distributions of data to consider: (1) revenue for the days with the "display" ad, and (2) revenue for the days with the non-"display" ad.
@@ -213,7 +208,7 @@ In our case, it is *possible* that the display ad variation could actually reduc
 
 ### Effect Size
 
-**Effect size quantifies the difference between the null hypothesis and the alternative hypothesis.** You can think of it as a sort of "signal-to-noise" measure for the difference between two situations.
+**Effect size quantifies the smallest difference between the null hypothesis and the alternative hypothesis.** You can think of it as a sort of "signal-to-noise" measure for the difference between two situations.
 
 There are multiple measures for [effect size](https://CRAN.R-project.org/package=effsize), but easily the most common and straight forward is [Cohen's D](https://www.rdocumentation.org/packages/effsize/versions/0.8.1/topics/cohen.d), named after the statistician Jacob Cohen. It scales the difference between two means, in terms of their standard deviation:
 
@@ -228,9 +223,9 @@ cohen.d(d = filter(marketing, display == 0) |> pluck("revenue"),
         f = filter(marketing, display == 1) |> pluck("revenue"))
 ```
 
-Roughly, this number can range from a "negligible" effect (i.e., $|d| < 0.2$) to a "large" effect (i.e., $|d| \geq 0.8$). For larger values, hypothesis testing might not be needed at all given the vast difference, whereas small values typically support the effort of hypothesis testing.
+Roughly, this number can range from a "negligible" effect (i.e., $|d| < 0.2$) to a "large" effect (i.e., $|d| \geq 0.8$). For larger values, hypothesis testing might not be needed at all given the vast difference, whereas small values typically support the effort of hypothesis testing. In the example above, we have a relatively "medium" sized effect.
 
-> *Note: Cohen's D (along with many other statistics) do not hold up well for small samples of data less than 100.*
+> *Note: Cohen's D (along with many other statistics) typically do not hold up well for small samples of data less than 100.*
 
 ### Testing Process
 
@@ -241,7 +236,7 @@ Here, our process for statistical testing roughly follows these steps:
 1.  Devise a null hypothesis.
 2.  Infer the distribution of the random variable represented in the null hypothesis.
 3.  Choose a practical and informed False Negative Rate, called the "$\alpha$-level". Let this inform a "critical value" based on whether you're using a two-tailed or one-tailed test.
-    -   If we end up rejecting the null hypothesis, this is the theoretical probability we would have sampled our data given that it was actually "true".
+    -   If we end up rejecting the null hypothesis, this is the theoretical probability we would have sampled *our* data given that the null hypothesis was actually "true".
     -   [**Do not arbitrarily choose a value like 0.05**](https://doi.org/10.1080/00031305.2019.1583913).
 4.  Your null hypothesis should be associated with a difference in parameter values, (e.g., $p_1 - p_2$ or $\mu - 0$). Decide on the *least extreme but most practical* difference worth measuring, and call this $\Delta$.
     -   This value can be *informed* by an effect size calculation or conversations with co-workers.
@@ -249,7 +244,7 @@ Here, our process for statistical testing roughly follows these steps:
 5.  Choose a practical and informed False Positive Rate ($\beta$).
     -   If the difference $\Delta$ is true, what is the likelihood of detecting it with this test?
 6.  Calculate an appropriate sample size using the above measures, and ensure you have enough data before moving forward.
-7.  Run the hypothesis test, and draw conclusions.
+7.  Gather data, run the hypothesis test, and draw conclusions.
 
 ### Error Types
 
@@ -359,6 +354,10 @@ ggplot() +
                 fun = f_sampling, 
                 xlim = c(observed_diff, 300),
                 geom = "area") +
+  stat_function(mapping = aes(fill = 'more extreme samples'),
+                fun = f_sampling, 
+                xlim = c(-300, -observed_diff),
+                geom = "area") +
   geom_function(xlim = c(-300, 300), 
                 fun = f_sampling) +
   geom_vline(mapping = aes(xintercept = observed_diff,
@@ -385,7 +384,7 @@ From our bootstrapped data, we can calculate this directly. But first, since we 
 diffs_in_avgs_d <- diffs_in_avgs - mean(diffs_in_avgs)
 
 paste("p-value ", 
-      sum(observed_diff < diffs_in_avgs_d) /
+      sum(abs(observed_diff) < abs(diffs_in_avgs_d)) /
         length(diffs_in_avgs_d))
 ```
 
@@ -509,16 +508,16 @@ $$
 
 To test this hypothesis, we create a contingency table:
 
-+----------------+:--------------:+:-----------------:+:--------------:+
-| *Observed\     | Successes\     | Failures\         | Totals\        |
-| Values*        | (Clicks)       | (Non-Clicks)      | (Impressions)  |
-+----------------+----------------+-------------------+----------------+
-| Variation A    | $C_A$          | $I_A - C_A$       | $I_A$          |
-+----------------+----------------+-------------------+----------------+
-| Variation B    | $C_B$          | $I_B - C_B$       | $I_B$          |
-+----------------+----------------+-------------------+----------------+
-| Totals         | $C_A + C_B$    | $N - (C_A + C_B)$ | $N$            |
-+----------------+----------------+-------------------+----------------+
++-------------+:-----------:+:-----------------:+:-------------:+
+| *Observed\  | Successes\  | Failures\         | Totals\       |
+| Values*     | (Clicks)    | (Non-Clicks)      | (Impressions) |
++-------------+-------------+-------------------+---------------+
+| Variation A | $C_A$       | $I_A - C_A$       | $I_A$         |
++-------------+-------------+-------------------+---------------+
+| Variation B | $C_B$       | $I_B - C_B$       | $I_B$         |
++-------------+-------------+-------------------+---------------+
+| Totals      | $C_A + C_B$ | $N - (C_A + C_B)$ | $N$           |
++-------------+-------------+-------------------+---------------+
 
 *Note: In our case, we only have **two** levels for each factor. But, **this test will work with any number of rows and columns** (e.g., testing whether someone's hair color is independent of their eye color).*
 
@@ -553,15 +552,12 @@ Starting with the totals column and row from the above table, create the conting
 
 Consider the following 2x2 contingency table:
 
-+-------------------+:-------------:+:-------------:+:-------------------:+
-| *2x2 Contingency* | Successes     | Failures      | Totals              |
-+-------------------+---------------+---------------+---------------------+
-| Group A           | $\mathbf{a}$  | $\mathbf{b}$  | $a + b$             |
-+-------------------+---------------+---------------+---------------------+
-| Group B           | $\mathbf{c}$  | $\mathbf{d}$  | $c + d$             |
-+-------------------+---------------+---------------+---------------------+
-| Totals            | $a + c$       | $b + d$       | $n = a + b + c + d$ |
-+-------------------+---------------+---------------+---------------------+
+|                   |              |              |                     |
+|-------------------|:------------:|:------------:|:-------------------:|
+| *2x2 Contingency* |  Successes   |   Failures   |       Totals        |
+| Group A           | $\mathbf{a}$ | $\mathbf{b}$ |       $a + b$       |
+| Group B           | $\mathbf{c}$ | $\mathbf{d}$ |       $c + d$       |
+| Totals            |   $a + c$    |   $b + d$    | $n = a + b + c + d$ |
 
 Given a **2x2 table** with the row and column sums defined (the sums, *not* in bold), and the assumption that every number in the table is a non-negative integer (e.g., 0, 1, 2, ...), then **there is necessarily a finite number of ways that the (bold) cells could manifest.** In fact, R.A. Fisher proved that the probability of obtaining any one of these ways can be represented by the [hypergeometric distribution](https://en.wikipedia.org/wiki/Hypergeometric_distribution).
 
