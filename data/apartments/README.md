@@ -9,7 +9,7 @@ This apartments dataset contains rows of theoretical apartments listed in New Yo
 ### Usage
 
 ```R
-url_ <- "https://raw.githubusercontent.com/leontoddjohnson/i590/main/data/apartments/apartments"
+url_ <- "https://raw.githubusercontent.com/leontoddjohnson/i590/main/data/apartments/apartments.csv"
 marketing <- read_delim(url_, delim = ",")
 ```
 
