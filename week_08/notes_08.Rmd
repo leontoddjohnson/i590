@@ -45,7 +45,7 @@ ames |>
   theme_minimal()
 ```
 
-We can see that some of these typically have a slightly higher sales price than others, but we want to know if the differences are large enough to significanlty challenge our hypothesis that they're actually all basically the same. So, in this case, our hypothesis test is
+We can see that some of these typically have a slightly higher sales price than others, but we want to know if the differences are large enough to significantly challenge our hypothesis that they're actually all basically the same. So, in this case, our hypothesis test is
 
 $$
 H_0 : \text{average house price is equal across all Building Types}
@@ -91,9 +91,13 @@ At this point, you might notice a few assumptions that must hold before we can c
 
 *Of course, these assumptions are very strong and constricting!* But, in most cases, if they're "close enough", the test will typically hold just fine --- you'll just need to balance the risks as needed.
 
-### EXERCICE
+### EXERCISE
 
 For the hypothesis test we've formed above, determine if our data set meets all of these assumptions. If not, explain why, or how far off they are.
+
+```{r}
+print("your code here")
+```
 
 ### F-Test
 
@@ -120,7 +124,7 @@ ggplot() +
   theme_hc()
 ```
 
-When $F^* \approx 1$, the variance *between* groups is roughly the same as the variance *within* groups, and there is likely no relationship between the groups and the numerical value. If $F^* < 1$, the numeric value is unlikely to change between groups. And, if $F^* > 1$, especially if it's large, then there is evidence that the means between the groups are not all the same.
+When $F^* \approx 1$, the variance *between* groups is roughly the same as the variance *within* groups, and there is likely no relationship between the groups and the numerical value. If $F^* < 1$, the same is true but the variance within groups may just be large. And, if $F^* > 1$, especially if it's large, then there is evidence that the means between the groups overshadow the means within the groups, indicating that the *groupings* are introducing variance that isn't inherent in the data themselves.
 
 ### ANOVA Summary
 
@@ -332,7 +336,7 @@ In other words:
 
 It's very rare that you'll want to model a response variable using only a single explanatory variable. In the case where multiple variables are used to model the response, we want the relationship between *all* variables and the response to remain linear.
 
-As an example, we'll return to a subset of the Ames housing dataset (single family, one story homes built after 2000), and we'll create a new column that "binarizes" the `overall_qual` column into "great" or "not great".
+As an example, we'll return to a subset of the Ames housing dataset (single family, one story homes built after 2000), and we'll create a new column that reduces the `overall_qual` column into "great" or "not great".
 
 ```{r}
 ames_basic <- ames |>
@@ -444,9 +448,11 @@ $$
 
 And a house remodeled a year more recent (in this case) will tend to be \$(513.3 + \$5087.5 = \$5600.8) more.
 
+Notice the coefficient for `great_qual` in this model. This goes against our intuition for what should be happening, so it is a good sign that we should try different models.
+
 ### EXERCISE
 
-Develop another model which uses a different combination of variables and includes an interaction term. Run the model, look at the coefficients, and interpret your results.
+Develop another model which uses a different combination of variables and include an interaction term (i.e., the variables used above can still be a part of this combination). Run the model, look at the coefficients, and interpret your results.
 
 ```{r}
 print("your code here")
@@ -490,7 +496,7 @@ So *if* we were to interpret $\hat{\beta}_1$ (in the "original" model output) as
 Let's look at the relationship between Year Remodeled and First Floor Square Footage.
 
 ```{r}
-year_of_interest <- 2007  # change this value ...
+year_of_interest <- 2009  # change this value ...
 
 model <- lm(sale_price ~ year_remod_add, ames_basic)
 
@@ -519,7 +525,7 @@ ames_basic |>
   filter(year_remod_add == year_of_interest) |>
   ggplot() +
   geom_histogram(mapping = aes(x = sale_price), color = 'white') +
-  geom_vline(xintercept = pred, color = 'darkorange', linewidth = 1) +
+  geom_vline(xintercept = pred, color = 'lightblue', linewidth = 1) +
   scale_x_continuous(labels = \(x) paste("$", x / 1000, "K")) + 
   labs(title = paste("Histogram of Actual Sales Prices at Year = ",
                      year_of_interest),
@@ -592,10 +598,10 @@ If the model is a perfect fit, $SSE = 0$ so $R^2 = 1$. On the other hand, if we 
 Cook's Distance, or **Cook's D**, measures the amount to which a model's fitted values would change if a point were removed. In other words, it is a measure of leverage for each observation. *As a rule of thumb: an observation with Cook's distance larger than three times the mean Cook's distance might be an outlier.*
 
 $$
-\text{Cook's D} = \displaystyle D_{i} = {\frac {\sum _{j=1}^{n}\left(\hat {y}_j-\hat{y}_{j(i)}\right)^{2}}{p\cdot s^{2}}}
+\text{Cook's D} = \displaystyle D_{i} = {\frac {\sum _{j=1}^{n}\left(\hat {y}_j-\hat{y}_{j(i)}\right)^{2}}{k\cdot \text{MSE}}}
 $$
 
-This is a calculation for each observation $i$, and $\hat{y}_{j(i)}$ is the fitted value for observation $j$ when observation $i$ is removed from the model.
+This is a calculation for each observation $i$, and $\hat{y}_{j(i)}$ is the fitted value for observation $j$ when observation $i$ is removed from the model. $k$ is the number of parameters in the model (i.e., the number of $\beta_*$ terms).
 
 ```{r}
 model_3 <- lm(y3 ~ x3, anscombe)
@@ -606,6 +612,8 @@ anscombe <- anscombe |>
          influential_4 = x4 > 11,
          cooks_3 = cooks.distance(model_3),
          cooks_4 = cooks.distance(model_4))
+
+mean(anscombe$cooks_3)
 ```
 
 Different kinds of "outliers" yield different leverage values.
@@ -688,4 +696,4 @@ c('sse' = sse, 'mse' = mse, 'rmse' = rmse, 'mae' = mae, 'mape' = mape)
 
 ## Simpson's Paradox
 
-[Demonstration ...]
+*[In class demonstration ...]*
