@@ -15,9 +15,11 @@ This dataset was queried from the [USGS Earthquake Catalog](https://earthquake.u
 
 ### Usage
 
+(Using tidyverse packages.)
+
 ```R
 url_ <- "https://raw.githubusercontent.com/leontoddjohnson/i590/main/data/quakes/quakes.csv"
-marketing <- read_delim(url_, delim = ",")
+quakes <- read_delim(url_, delim = ",")
 ```
 
 ### Details
