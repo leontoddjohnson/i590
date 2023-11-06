@@ -62,7 +62,7 @@ apts |>
   geom_point() +
   geom_smooth(method = 'lm', color = 'gray', linetype = 'dashed', 
               se = FALSE) +
-  geom_smooth(se = FALSE) +
+  # geom_smooth(se = FALSE) +
   labs(title = "Price vs. Price Per Sq. Ft.",
        subtitle = paste("Linear Fit R-Squared =", round(rsquared, 3))) +
   theme_classic()
@@ -160,7 +160,7 @@ apts |>
   geom_point() +
   geom_smooth(method = 'lm', color = 'gray', linetype = 'dashed',
               se = FALSE) +
-  labs(title = "Price vs. (Price Per Sq. Ft.) ^ 2",
+  labs(title = "Log(Price) vs. Price Per Sq. Ft.",
        subtitle = paste("Linear Fit R-Squared =", round(rsquared, 3))) +
   theme_classic()
 ```

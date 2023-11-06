@@ -85,10 +85,10 @@ Here, we have different likelihood curves for different candidate values of $p =
 
 ### Cost Function
 
-In general, the same principle is applied to generalized linear models. For example, for ordinary linear regression, we have $y$ modeled by the Normal Distribution. Specifically, the error values are normal with a mean of 0 and standard deviation of $\sigma=\text{SE}$ (the standard error). So, for a single observation $(y, x)$, we use the PDF for the normal distribution,
+In general, the same principle is applied to generalized linear models. For example, for ordinary linear regression, we have $y$ modeled by the Normal Distribution. Specifically, the error values are normal with a mean of 0 and standard deviation of $\sigma=\text{SE}$ (the standard error). So, for a single observation $(y, x)$, we assume that $y$ is modeled by the normal distribution, and it falls some distance away from the model estimation $\hat{y} = \hat{\beta}x$. This distance (the amount of error) is modeled by the normal distribution. So, using the PDF for the normal distribution, we have
 
 $$
-\mathcal{L}(\beta|(y, x)) = P((y, x)|\beta) = \frac{1}{\sigma\sqrt{2\pi}}\text{exp}\left[-\frac{(y - \beta x)^2}{2\sigma}\right]
+\mathcal{L}(\beta = \hat{\beta}|(y, x)) = P((y, x)|\hat{\beta}) \sim \frac{1}{\sigma\sqrt{2\pi}}\text{exp}\left[-\frac{(y - \hat{\beta} x)^2}{2\sigma}\right]
 $$
 
 But this is for just one observation, whereas we have $N$ *independent* observations (and this is where the independence is most important). Recall that for independent events $A$ and $B$, we have
@@ -101,10 +101,10 @@ so, we multiply our probabilities, and use the log to make the calculation more 
 
 $$
 \begin{align*}
-\mathcal{L}(\beta|\mathcal{D}) &= \prod_{i = 1}^N P((y_i, x_i)|\beta) = \prod_{i = 1}^N \frac{1}{\sigma\sqrt{2\pi}}\text{exp}\left[-\frac{(\beta x_i - y_i)^2}{2\sigma}\right] \\
-\log\left(\mathcal{L}(\beta|\mathcal{D})\right) &= \log\left(\prod_{i = 1}^N \frac{1}{\sigma\sqrt{2\pi}}\text{exp}\left[-\frac{(\beta x_i - y_i)^2}{2\sigma}\right]\right) \\
-&= \sum_{i = 1}^N \log\left(\frac{1}{\sigma\sqrt{2\pi}}\text{exp}\left[-\frac{(\beta x_i - y_i)^2}{2\sigma}\right]\right) \\
-&= -\frac{N}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_{i = 1}^N (\beta x_i - y_i)^2
+\mathcal{L}(\beta = \hat{\beta}|\mathcal{D}) &= \prod_{i = 1}^N P((y_i, x_i)|\hat{\beta}) \sim \prod_{i = 1}^N \frac{1}{\sigma\sqrt{2\pi}}\text{exp}\left[-\frac{(\hat{\beta} x_i - y_i)^2}{2\sigma}\right] \\
+\log\left(\mathcal{L}(\hat{\beta}|\mathcal{D})\right) &= \log\left(\prod_{i = 1}^N \frac{1}{\sigma\sqrt{2\pi}}\text{exp}\left[-\frac{(\hat{\beta} x_i - y_i)^2}{2\sigma}\right]\right) \\
+&= \sum_{i = 1}^N \log\left(\frac{1}{\sigma\sqrt{2\pi}}\text{exp}\left[-\frac{(\hat{\beta} x_i - y_i)^2}{2\sigma}\right]\right) \\
+&= -\frac{N}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_{i = 1}^N (\hat{\beta} x_i - y_i)^2
 \end{align*}
 $$
 
@@ -114,16 +114,16 @@ Since $-\frac{N}{2}\log(2\pi\sigma^2)$ and $\frac{1}{2\sigma^2}$ are both consta
 
 #### Logistic Regression
 
-It can be shown that the same process above can be used to arrive at the cost function for logistic regression:
+It can be shown that the same process above can be used to arrive at the cost function for logistic regression (in which case, the response variable $y$ is then modeled with the Binomial distribution):
 
 $$
-\mathcal{J}(\beta) = -\frac{1}{n}\left(\sum_{i=1}^n y_i \log \hat{p}_i + (1-y_i) \log (1-\hat{p}_i)\right), \quad\quad \hat{p}_i\text{ is a function of }\beta
+\mathcal{J}(\hat{\beta}) = -\frac{1}{n}\left(\sum_{i=1}^n y_i \log \hat{p}_i + (1-y_i) \log (1-\hat{p}_i)\right), \quad\quad \hat{p}_i\text{ is a function of }\hat{\beta}
 $$
 
 This is called the **cross-entropy**. Here $y_i \in \{0,1\}$, so we can tell:
 
--   when $y_i = 1$ (i.e. the house is actually in SF), the contribution is $-\log p_i$. The closer $p_i$ is to 1, the smaller the cost. If $p_i = 0$ (that is, we claimed it was impossible for this house to be in SF) then we incur an infinite penalty.
--   when $y_i = 0$ (i.e. the house is actually in NY), the contribution is $-\log(1-p_i)$. The closer $p_i$ is to 0, the smaller the penalty. If we claimed $p_i = 1$ (i.e. this house in NY *must* be in SF) then we incur an infinite penalty.
+-   when $y_i = 1$ (i.e. the house is actually in SF), the contribution is $-\log p_i$. The closer $\hat{p}_i$ is to 1, the smaller the cost. If $\hat{p}_i = 0$ (that is, we claimed it was impossible for this house to be in SF) then we incur an infinite penalty.
+-   when $y_i = 0$ (i.e. the house is actually in NY), the contribution is $-\log(1-\hat{p}_i)$. The closer $\hat{p}_i$ is to 0, the smaller the penalty. If we claimed $\hat{p}_i = 1$ (i.e. this house in NY *must* be in SF) then we incur an infinite penalty.
 
 The effect is that we are trying to get the model to optimize the coefficients by giving **small cost to correct estimations with high confidence**, a medium cost to estimations it waffles on (i.e., doesn't really commit one way or the other), and a **high cost to those it estimates *incorrectly* and with high confidence**.
 
@@ -195,11 +195,15 @@ paste("Model 2 BIC", round(BIC(model2), 2))
 
 The BIC penalizes parameters based on the number of rows of data. Having more parameters with smaller data sets affects the BIC more than having more parameters with larger data sets. This is due to the "diminishing" returns of the $\log$ function.
 
+```{r}
+summary(model1)
+```
+
 ### ANOVA
 
-Recall that ANOVA evaluates the variance of a response variable across and between different group levels. The null hypothesis for ANOVA is that the introduction of a "group" variable $x_i$ does not inform the overall mean. I.e., the overall mean of the response is the same thing as the overall mean between/within groups --- no "model improvement" is added with $x_i$.
+Recall that ANOVA evaluates the variance of a response variable across and between different group levels. The null hypothesis for ANOVA is that the introduction of a "group" variable $x_i$ does not inform the mean. That is, the overall mean of the response is the same thing as the overall mean between/within groups --- no "model (mean) improvement" is added with $x_i$.
 
-Consider an ordinary linear model with some variance in residuals (or a GLM with some deviance). If we *add* a new explanatory variable $x_i$ to this model, we are interested in whether the residual variance (or deviance) is any different. I.e., are we looking at two different models, or just one within a superfluous variable.
+Consider an ordinary linear model with some variance in residuals (or a GLM with some deviance). If we *add* a new explanatory variable $x_i$ to this model, we are interested in whether the residual variance (or deviance) is any different. I.e., **are we looking at two different models, or just one within a superfluous variable.**
 
 **The ANOVA between *nested* models tests for equal residual variance (or deviance) as variables are introduced.**
 
@@ -236,7 +240,7 @@ As we increase the number of explanatory variables, we cause our model to become
 
 -   Predictions (and interpretations) become unstable
 -   Interpretations become more difficult and nuanced
--   The chances of multicolinearity increase exponentially
+-   The chances of multicollinearity increase exponentially
 -   R-Squared value is artificially inflated
 
 ### Variance Inflation Factor
@@ -247,7 +251,7 @@ Consider the correlation matrix formed by a few explanatory variables from the `
 cor(select(apts, year_built, sqft, elevation, beds, bath))
 ```
 
-We can use the correlation plot above to capture *collinearity* by gauging the magnitudes of the correlation coefficients between variables. But, to capture *multicollinearity*, it is best to use the [Variance Inflation Factor](https://en.wikipedia.org/wiki/Variance_inflation_factor) (VIF). The VIF is calculated by
+We can use the correlations above to capture *collinearity* by gauging the magnitudes of the correlation coefficients between variables. But, to capture *multicollinearity*, it is best to use the [Variance Inflation Factor](https://en.wikipedia.org/wiki/Variance_inflation_factor) (VIF). The VIF is calculated by
 
 $$
 \text{VIF} = \frac{1}{1 - R_j^2}\ ,
@@ -315,7 +319,7 @@ This difference is more pronounced with smaller sample sizes, and (of course) wi
 Another method for reducing (or selecting) the best variables for a model is to use step-wise selection. In R, we can automate *backward* selection using `step`. The idea is to
 
 1.  Fit the model with all variables, and calculate the AIC
-2.  Test removing each variable individually, and log the coorresponding AIC
+2.  Test removing each variable individually, and log the corresponding AIC
 3.  Remove the variable which yields the most negative AIC (more negative = better)
 4.  Repeat until removing variables only increases the AIC.
 
