@@ -132,7 +132,7 @@ The [tidyverse](https://www.tidyverse.org/) is a curated collection of R package
 ### Vocabulary
 
 | Term            | Definition                                                            |
-|-----------------|-------------------------------------------------------|
+|-----------------|-----------------------------------------------------------------------|
 | **variable**    | a quantity, quality, or property that you can measure                 |
 | **value**       | the state of a variable when it was measured                          |
 | **observation** | a set of measurements under the same conditions *for a single entity* |

@@ -16,7 +16,7 @@ library(car)
 
 ## The Concept of GLMs
 
-Strictly linear relationships are quite uncommon in reality, and not all response variables are distributed normally (i.e., by the Gaussiand distribution). That said, we can leverage the power of linear modeling in a *general* way, to cater to most applications. We create these "Generalized Linear Models" (GLMs) using the following adjustments:
+Strictly linear relationships are quite uncommon in reality, and not all response variables are distributed normally (i.e., by the Gaussian distribution). That said, we can leverage the power of linear modeling in a *general* way, to cater to most applications. We create these "Generalized Linear Models" (GLMs) using the following adjustments:
 
 1.  **Transformations and Link Functions**: Intentionally manipulating the explanatory and response variables. *(Part 1 --- this notebook)*
 2.  **Maximum Likelihood Estimation**: Redefining our model based on the distribution of the response variable. *(Part 2 --- the next notebook)*

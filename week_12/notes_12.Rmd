@@ -45,7 +45,7 @@ The capabilities in base R are a bit restricting when it comes to exploring time
 To start the modeling process, we need to create an appropriate time series object:
 
 1.  The response variable needs to be clearly defined and calculated uniquely for every unit of time. In this way, each row needs to be distinct, without duplicates.
-2.  The index must be consistent and regular. So, it wouldn't make sense to have 3 rows of data for '2021-01-01' and then 1 row of data for '2021-01-04'.
+2.  The index must be consistent and regular. So, it wouldn't make sense to have 3 rows of data for '2021-01-01' and then 1 row of data for '2021-01-04 01:02:33'.
 3.  There can be no implicitly missing rows. I.e., if we skip from '2021-01-01' to '2021-01-03', we need to create an `NA` row for '2021-01-02'.
 
 We will use the `time` column as an index, and define our response variable to be **"the number of earthquakes each day"**. Here, we'll use `latitude` and `longitude` as a sort of identifier for each earthquake, and `mag` as a particular value of interest. We will only count an earthquake if there is a magnitude logged for it.
@@ -98,6 +98,13 @@ Here, we have data represented in three different formats: tibble, tsibble, and 
 *(The [xts](https://cran.r-project.org/web/packages/xts/index.html) package is for **eXtending** the **T**ime **S**eries modeling capabilities of R.)*
 
 ## Visualizing Time Series
+
+```{r}
+quakes_ts |>
+ggplot() +
+  geom_line(mapping = aes(x=date, y=num_quakes)) +
+  theme_hc()
+```
 
 Time series data can be quite messy to visualize, as highly periodic data tends to become quite noisy. A common method for improving our ability to visualize these data is **smoothing**. Smoothing methods translate the data in such a way that a "smooth" curve can be drawn to represent the data using some heuristic. Here, we'll talk about two of the most popular methods.
 
@@ -235,7 +242,7 @@ The `decompose` function in R automates this process.
 
 ## Univariate Time Series Modeling
 
-Here, we'll discuss four types of univariate modeling:
+Here, we'll discuss three types of univariate modeling:
 
 -   Auto-Regressive Models (AR)
 -   Moving Average Models (MA)
@@ -264,7 +271,7 @@ hits_ts <- as_tsibble(hits, index = date)
 ```{r}
 hits_ts |>
   ggplot() +
-  geom_line(mapping = aes(x = date, y = views)) +
+  geom_line(mapping = aes(x = date, y = views), size=0.3) +
   labs(title = '"Time Series" Page Views on Wikipedia') +
   theme_hc()
 ```
@@ -290,6 +297,14 @@ We calculate autocorrelation with:
 $$
 \text{AC}(h) = \frac{\text{Cov}(y_t, y_{t-h})}{\text{Var}(y_t)}
 $$
+
+If $h=7$, for example, we'd be looking at the correlation between the number of views on each day and the views 7 days prior.
+
+```{r}
+hits_ts |>
+  mutate(views_lag7 = lag(views, 7)) |>
+  drop_na()
+```
 
 And, it can be plotted using the `acf` function in R.
 
