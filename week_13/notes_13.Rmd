@@ -16,7 +16,7 @@ As a start, think about the context of the lab and consider the following:
 
 -   Possible risks or societal implications
 
--   Crucial points which might not be measurable
+-   Crucial issues which might not be measurable
 
 *Treat this exercise as if the analyses in your assigned lab (i.e., the one you are critiquing) were to be published, made available to the public in a press release, or used at some large company (e.g., for `mpg` data, imagine if Toyota used the conclusions to drive strategic decisions).*
 
