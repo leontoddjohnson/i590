@@ -13,6 +13,8 @@ library(ggrepel)
 # time series toolkits
 library(xts)
 library(tsibble)
+
+options(scipen = 6)
 ```
 
 ## Time Series Data

@@ -12,6 +12,8 @@ library(ggrepel)
 library(broom)
 library(lindia)
 library(car)
+
+options(scipen = 6)
 ```
 
 ## The Concept of GLMs

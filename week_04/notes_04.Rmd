@@ -20,6 +20,8 @@
 ```{r}
 library(tidyverse)
 library(ggthemes)
+
+options(scipen = 6)
 ```
 
 ## Random Variables
@@ -202,7 +204,7 @@ ggplot() +
   geom_point(mapping = aes(x = 0:1, y = c(0.75, 0.25))) +
   scale_x_continuous(breaks = c(0, 1),
                      limits = c(-.5, 1.5)) +
-  scale_y_continuous(breaks = c(0, 0.25, 0.75, 1),
+  scale_y_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1),
                      limits = c(0, 1)) +
   labs(title = "PMF for Bernoulli Distribution",
        x = "X",
@@ -242,16 +244,16 @@ Maybe this is a really lucrative slot machine ...
 
 ### [Geometric Distribution](https://en.wikipedia.org/wiki/Geometric_distribution)
 
-The Geometric Distribution is concerned with the very *first* success of a series of Bernoulli trials. That is, we are looking at all probabilities of the random variable $X$ which represents the number of *independent* Bernoulli trials before the first success. We can define the probability mass function $f$ given some probability $p$ associated with the Bernoulli trials.
+The Geometric Distribution is concerned with the very *first* success of a series of Bernoulli trials. That is, we are looking at all probabilities of the random variable $X$ which represents the number of *independent* Bernoulli trials needed for the first success. We can define the probability mass function $f$ given some probability $p$ associated with the Bernoulli trials.
 
 $$
 f(X = k; p) = (1-p)^{k-1}p
 $$
 
-This makes sense, because we're looking at the probability of a string of non-successes (hence the first term in the product, $(1-p)^{k-1}$) then one success which has probability $p$.
+This makes sense, because we're looking at the probability of a string of non-successes (hence the first term in the product, $(1-p)^{k-1}$), then one success which has probability $p$.
 
 ```{r}
-x <- 0:8
+x <- 1:8
 y <- dgeom(x, prob = 0.5)
 params <- "(p = 0.5)"
 
@@ -268,7 +270,7 @@ with this example, we have $p=0.5$, so a great analog here would be the flipping
 
 ### [Poisson Distribution](https://en.wikipedia.org/wiki/Poisson_distribution)
 
-Consider an event which occurs periodically, e.g., rain, catching a fish in the ocean, a dog walking by, etc. Then, the Poisson Distribution expresses the probability that event occurs $k$ times in a fixed interval of time or space under the following conditions:
+Consider an event which occurs periodically, e.g., rain, catching a fish in the ocean, goals scored in a soccer game, etc. Then, the Poisson Distribution expresses the probability that event occurs $k$ times in a fixed interval of time under the following conditions:
 
 1.  The average rate of the event is constant
 2.  Each occurrence is independent of the last
@@ -360,6 +362,7 @@ Below are a few other distributions that you can expect to encounter in this cla
 -   [Chi-Squared Distribution](https://en.wikipedia.org/wiki/Chi-squared_distribution)
 -   [Student's t-distribution](https://en.wikipedia.org/wiki/Student%27s_t-distribution)
 -   [Beta Distribution](https://en.wikipedia.org/wiki/Beta_distribution)
+-   [Dirichlet Distribution](https://en.wikipedia.org/wiki/Dirichlet_distribution)
 
 ## Empirical Distributions (Ames)
 
@@ -380,7 +383,11 @@ ames |>
   ggplot() +
   geom_histogram(mapping = aes(x = Sale_Price),
                  colour='white') +
-  theme_hc()
+  scale_x_continuous(labels = \(x) paste("$", x / 1000, "K")) +
+  labs(title = "Sales Prices of Residences in Ames, Iowa",
+       subtitle = "Data gathered from 2006 to 2010") + 
+  theme_hc() +
+  theme(plot.subtitle = element_text(color = 'darkgray'))
 ```
 
 The price is always greater than 0, and the bulk of the data is concentrated on the left side of the distribution. Also, there is a relatively long tail to the right. This looks a lot like a Poisson Distribution. A few terms we can pick up from this plot:

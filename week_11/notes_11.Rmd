@@ -11,6 +11,8 @@ library(ggrepel)
 library(broom)
 library(lindia)
 library(car)
+
+options(scipen = 6)
 ```
 
 For this notebook, we'll need to retrieve the data we used in the previous notebook:

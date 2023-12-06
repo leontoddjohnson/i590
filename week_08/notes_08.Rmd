@@ -14,6 +14,8 @@ library(AmesHousing)
 library(boot)
 library(broom)
 library(lindia)
+
+options(scipen = 6)
 ```
 
 ## ANOVA
@@ -24,7 +26,7 @@ $$
 H_0 : \theta_1 = \theta_2 = \cdots = \theta_k
 $$
 
-In this way, the alternative would be that there exists *at least one* group $i$ where $\theta_i$ is different from there rest.
+In this way, the alternative would be that there exists *at least one* group $i$ where $\theta_i$ is different from there rest. In other words, **we are testing whether a group factor is independent of the response variable.**
 
 For example, referring to the [Ames Housing Dataset](http://ww2.amstat.org/publications/jse/v19n3/decock.pdf) (and its [documentation](https://jse.amstat.org/v19n3/decock/DataDocumentation.txt)), suppose we're interested in the house price across different Building Types.
 
@@ -325,6 +327,7 @@ We can run linear regression models using the formula syntax (`~`), and `lm`:
 ```{r}
 model <- lm(y1 ~ x1, anscombe)
 model$coefficients
+summary(model)
 ```
 
 In other words:
@@ -383,7 +386,8 @@ $$
 
 ```{r}
 model <- lm(sale_price ~ first_flr_sf + great_qual, ames_basic)
-model$coefficients
+# model$coefficients
+summary(model)
 ```
 
 We can interpret our coefficients thus:
